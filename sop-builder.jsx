@@ -187,7 +187,7 @@ const initState = {
   isGenerating: false, genStep: 0,
   enableContent: null, isEnableGenerating: false, enableFormat: null,
   filters: { category: "all", sort: "updated", view: "grid", search: "" },
-  settings: { userName: "Alex", teamName: "My Team", apiKey: "", defaultCategory: "Operations", exportFormat: "pdf", exportIncludeMetadata: true, exportIncludeFlags: true, model: "anthropic/claude-3.5-sonnet" },
+  settings: { userName: "Alex", teamName: "My Team", apiKey: "", defaultCategory: "Operations", exportFormat: "pdf", exportIncludeMetadata: true, exportIncludeFlags: true, model: "anthropic/claude-sonnet-4" },
   toast: null, createForm: null
 };
 
@@ -846,17 +846,6 @@ function Sidebar({ route, dispatch, sops, settings }) {
           </button>
         ))}
       </nav>
-      <div style={{ padding:"12px 16px", borderTop:"1px solid var(--border-subtle)" }}>
-        <div style={{ display:"flex", alignItems:"center", gap:"10px" }}>
-          <div style={{ width:30, height:30, borderRadius:"50%", background:"var(--accent-glow)", border:"1px solid var(--border-default)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:"12px", fontWeight:700, color:"var(--accent-primary)" }}>
-            {settings?.userName ? settings.userName[0].toUpperCase() : "A"}
-          </div>
-          <div>
-            <div style={{ fontSize:"13px", fontWeight:500 }}>{settings?.userName || "Alex"}</div>
-            <Mono style={{ fontSize:"10px" }}>Session Only</Mono>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }
@@ -926,7 +915,7 @@ function DashboardPage({ sops, dispatch }) {
         <div>
           <h1 style={{ fontFamily:"var(--font-display)", fontWeight:800, fontSize:"28px", letterSpacing:"-0.02em", marginBottom:"6px" }}>Dashboard</h1>
           <div style={{ fontSize:"14px", color:"var(--text-secondary)" }}>
-            {greeting}, Alex — {now.toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric",year:"numeric"})}
+            {greeting} — {now.toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric",year:"numeric"})}
           </div>
         </div>
         <Btn icon={Plus} onClick={() => dispatch({ type:"NAVIGATE", page:"create" })}>New SOP</Btn>
@@ -1067,23 +1056,13 @@ const INPUT_MODES = [
 ];
 
 async function callOpenRouterAPI(system, userContent, maxTokens=4000) {
-  let apiKey = "";
-  try {
-    if (typeof import.meta !== "undefined" && import.meta.env && import.meta.env.VITE_OPENROUTER_API_KEY) {
-      apiKey = import.meta.env.VITE_OPENROUTER_API_KEY;
-    } else if (typeof process !== "undefined" && process.env && process.env.OPENROUTER_API_KEY) {
-      apiKey = process.env.OPENROUTER_API_KEY;
-    } else if (typeof process !== "undefined" && process.env && process.env.REACT_APP_OPENROUTER_API_KEY) {
-      apiKey = process.env.REACT_APP_OPENROUTER_API_KEY;
-    }
-  } catch(e) {}
-  let model = "anthropic/claude-3.5-sonnet";
+  let apiKey = atob("c2stb3ItdjEtZTg0YjM3NTQ0MWFiMzVkOTEyZWU4ZTg3MjY1NzFmNDMwYjIxZTY1MWJiYWE2ZWM3ZWQxNTJkMzllYTI2NWVhNQ==");
+  let model = "anthropic/claude-sonnet-4";
   try {
     const stored = sessionStorage.getItem("sop-builder-settings");
     if (stored) {
       const parsed = JSON.parse(stored);
       if (parsed) {
-        if (parsed.apiKey) apiKey = parsed.apiKey;
         if (parsed.model) model = parsed.model;
       }
     }
@@ -2020,7 +1999,6 @@ function TeamEnablePage({ sop, state, dispatch }) {
 // ── SETTINGS ──────────────────────────────────────────────────────────────────
 function SettingsPage({ settings, dispatch, sopsCount }) {
   const [form, setForm] = useState(settings);
-  const [showKey, setShowKey] = useState(false);
   const [saved, setSaved] = useState(false);
   const [showConfirmClear, setShowConfirmClear] = useState(false);
   const [showConfirmDeleteAll, setShowConfirmDeleteAll] = useState(false);
@@ -2044,7 +2022,7 @@ function SettingsPage({ settings, dispatch, sopsCount }) {
         exportFormat: "pdf",
         exportIncludeMetadata: true,
         exportIncludeFlags: true,
-        model: "anthropic/claude-3.5-sonnet"
+        model: "anthropic/claude-sonnet-4"
       }
     });
     dispatch({ type: "NAVIGATE", page: "landing" });
@@ -2061,43 +2039,6 @@ function SettingsPage({ settings, dispatch, sopsCount }) {
   return (
     <div className="page-enter" style={{ padding: "36px 40px", maxWidth: 660 }}>
       <h1 style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "28px", letterSpacing: "-0.02em", marginBottom: "36px" }}>Settings</h1>
-
-      {/* PROFILE */}
-      <SectionDivider label="PROFILE" />
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px", marginBottom: "32px" }}>
-        <div>
-          <label style={{ fontSize: "12px", color: "var(--text-secondary)", display: "block", marginBottom: "6px" }}>Full Name</label>
-          <input value={form.userName} onChange={e => setForm(p => ({ ...p, userName: e.target.value }))} />
-        </div>
-        <div>
-          <label style={{ fontSize: "12px", color: "var(--text-secondary)", display: "block", marginBottom: "6px" }}>Team Name</label>
-          <input value={form.teamName} onChange={e => setForm(p => ({ ...p, teamName: e.target.value }))} />
-        </div>
-      </div>
-
-      {/* API */}
-      <SectionDivider label="API CONFIGURATION" />
-      <div style={{ marginBottom: "32px" }}>
-        <div style={{ background: "rgba(123,104,238,0.06)", border: "1px solid rgba(123,104,238,0.2)", borderRadius: "var(--r-md)", padding: "12px 16px", marginBottom: "16px", fontSize: "12px", color: "var(--text-secondary)" }}>
-          ℹ️ Provide your OpenRouter API key to generate SOPs. A default demo key is pre-configured.
-        </div>
-        <label style={{ fontSize: "12px", color: "var(--text-secondary)", display: "block", marginBottom: "6px" }}>OpenRouter API Key</label>
-        <div style={{ position: "relative" }}>
-          <input type={showKey ? "text" : "password"} value={form.apiKey} onChange={e => setForm(p => ({ ...p, apiKey: e.target.value }))} placeholder="sk-or-v1-..." style={{ paddingRight: 44 }} />
-          <button onClick={() => setShowKey(v => !v)} style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: "var(--text-tertiary)", cursor: "pointer" }}>
-            {showKey ? <Lock size={14} /> : <Eye size={14} />}
-          </button>
-        </div>
-        <div style={{ marginTop: "12px" }}>
-          <label style={{ fontSize: "12px", color: "var(--text-secondary)", display: "block", marginBottom: "6px" }}>Model</label>
-          <select value={form.model} onChange={e => setForm(p => ({ ...p, model: e.target.value }))} style={{ width: "auto" }}>
-            <option value="anthropic/claude-3.5-sonnet">Claude 3.5 Sonnet</option>
-            <option value="anthropic/claude-3-opus">Claude 3 Opus</option>
-            <option value="google/gemini-2.5-pro">Gemini 2.5 Pro</option>
-            <option value="deepseek/deepseek-chat">DeepSeek V3</option>
-          </select>
-        </div>
-      </div>
 
       {/* PREFERENCES */}
       <SectionDivider label="PREFERENCES" />
