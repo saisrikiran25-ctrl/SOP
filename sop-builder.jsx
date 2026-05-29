@@ -1957,7 +1957,7 @@ function TeamEnablePage({ sop, state, dispatch }) {
           <div style={{ display:"flex", flexDirection:"column", gap:"10px" }}>
             {FORMATS.map(({id,icon:Icon,label,desc})=>(
               <div key={id} className="card-hover" onClick={()=>generate(id)}
-                style={{ background:"var(--bg-card)", border:`1px solid ${format===id?"var(--accent-primary)":"var(--border-default)"}`, borderRadius:"var(--r-lg)", padding:"16px", cursor:"pointer",
+                style={{ border:`1px solid ${format===id?"var(--accent-primary)":"var(--border-default)"}`, borderRadius:"var(--r-lg)", padding:"16px", cursor:"pointer",
                   background: format===id ? "rgba(123,104,238,0.08)" : "var(--bg-card)" }}>
                 <div style={{ display:"flex", alignItems:"center", gap:"10px", marginBottom:"6px" }}>
                   <div style={{ width:34, height:34, background:format===id?"var(--accent-glow)":"var(--bg-elevated)", borderRadius:"var(--r-sm)", display:"flex", alignItems:"center", justifyContent:"center" }}>
