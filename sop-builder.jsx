@@ -835,7 +835,7 @@ function DashboardPage({ sops, dispatch }) {
   }, [sops]);
 
   const stats = [
-    { label:"Total SOPs", value:sops.length, icon:FileText, trend:"+2 this month" },
+    { label:"Total SOPs", value:sops.length, icon:FileText, trend:"" },
     { label:"Live SOPs", value:sops.filter(s=>s.metadata.status==="live").length, icon:CheckCircle2, trend:"Active" },
     { label:"Avg. Completeness", value:(sops.length ? Math.round(sops.reduce((s,x)=>s+x.metadata.completeness_score,0)/sops.length) : 0)+"%", icon:Activity, trend:"Good health" },
     { label:"Open Flags", value:sops.reduce((s,x)=>s+x.completeness_flags.length,0), icon:AlertTriangle, trend:"Needs attention", warn:true }
@@ -872,7 +872,7 @@ function DashboardPage({ sops, dispatch }) {
             </div>
             <div style={{ fontFamily:"var(--font-display)", fontSize:"32px", fontWeight:800, letterSpacing:"-0.02em", marginBottom:"4px" }}>{value}</div>
             <div style={{ fontSize:"13px", color:"var(--text-secondary)", marginBottom:"4px" }}>{label}</div>
-            <Mono style={{ fontSize:"10px", color:warn&&Number(value)>0?"var(--error)":"var(--text-tertiary)" }}>{trend}</Mono>
+            <Mono style={{ fontSize:"10px", color:warn&&Number(value)>0?"var(--error)":"var(--text-tertiary)", visibility: trend ? "visible" : "hidden" }}>{trend || "\u00A0"}</Mono>
           </div>
         ))}
       </div>
