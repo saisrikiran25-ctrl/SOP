@@ -115,73 +115,9 @@ const CATCOLORS = {
 };
 const catColor = (c) => CATCOLORS[c]||CATCOLORS.Default;
 
-// ── SAMPLE DATA ───────────────────────────────────────────────────────────────
-const SAMPLE_SOPS = [
-  {
-    id:"sop_sample_001",title:"Weekly Client Report Distribution",
-    purpose:"Ensure all active clients receive accurate weekly performance reports every Monday by 9 AM. This process maintains client trust, reduces ad-hoc reporting requests, and provides a consistent audit trail of deliverables.",
-    scope:{included:["Weekly report generation","Client distribution via email","Slack notification to account managers"],excluded:["Ad-hoc client requests","Annual report generation","Data analysis or interpretation"]},
-    roles:[{role:"Data Analyst",person_or_team:"Analytics Team",responsibility:"Pull and format weekly data from Salesforce"},{role:"Account Manager",person_or_team:"Client Success",responsibility:"Review, personalize, and send reports to assigned clients"},{role:"Team Lead",person_or_team:"Operations",responsibility:"Spot-check 20% of reports for accuracy before send"}],
-    prerequisites:["Access to Salesforce Analytics dashboard","Approved email template in HubSpot","Client contact list updated in CRM"],
-    steps:[
-      {step_number:1,title:"Pull weekly data from Salesforce",description:"Navigate to Salesforce > Reports > Weekly Performance Template. Set date range to previous Mon–Sun. Export as CSV to /reports/weekly/ folder.",responsible_role:"Data Analyst",tools_used:["Salesforce"],is_decision_point:false,decision_options:null,flags:[]},
-      {step_number:2,title:"Generate formatted report in Notion",description:"Open the Weekly Report Notion template. Paste CSV data into the auto-formatter script. Verify all KPIs render correctly. Flag any anomalies in red.",responsible_role:"Data Analyst",tools_used:["Notion","Google Sheets"],is_decision_point:false,decision_options:null,flags:[]},
-      {step_number:3,title:"Account Manager review and personalization",description:"Review assigned client reports. Add 2–3 sentences of personalized commentary based on notable changes. Ensure all client names and metrics are accurate.",responsible_role:"Account Manager",tools_used:["Notion","HubSpot"],is_decision_point:true,decision_options:{if_true:"Report accurate → proceed to send",if_false:"Errors found → flag for Data Analyst correction"},flags:[]},
-      {step_number:4,title:"Send via HubSpot sequence",description:"Upload finalized report PDF to HubSpot. Trigger the Weekly Report email sequence for each client. Confirm delivery receipts in HubSpot dashboard within 30 minutes.",responsible_role:"Account Manager",tools_used:["HubSpot"],is_decision_point:false,decision_options:null,flags:[]},
-      {step_number:5,title:"Post Slack update to account team",description:"Post completion notice in #client-reports Slack channel: 'Weekly reports sent ✓ — [date]. N reports distributed.' Tag relevant AMs for any flagged anomalies.",responsible_role:"Account Manager",tools_used:["Slack"],is_decision_point:false,decision_options:null,flags:[]},
-    ],
-    decision_points:[{condition:"Report contains data anomaly >20% week-over-week",if_true:"Flag to Data Analyst and Team Lead before sending",if_false:"Proceed to send on schedule"}],
-    exceptions:[{scenario:"Salesforce is down on Monday morning",handling:"Use last cached CSV from Friday. Note in report header that data is from Friday. Notify Team Lead immediately."},{scenario:"Client contact details have changed",handling:"Check CRM for updated contact. If not found, hold report and notify AM to verify before sending."}],
-    expected_output:"All active clients have received their reports by 9 AM Monday. Confirmation receipts logged in HubSpot. Slack channel updated with completion notice.",
-    review_notes:{review_frequency:"Quarterly",next_review_date:"2025-09-01",update_triggers:["New client CRM system adoption","Changes to Salesforce report templates","Client complaint about report accuracy"]},
-    completeness_flags:[],
-    metadata:{category:"Operations",department:"Client Success",owner:"Marcus Chen",frequency:"weekly",version:"2.1",status:"live",priority:"high",created_at:"2025-01-15T10:00:00Z",updated_at:"2025-05-20T14:30:00Z",completeness_score:95}
-  },
-  {
-    id:"sop_sample_002",title:"New Employee Onboarding — Week 1",
-    purpose:"Provide every new hire with a consistent, structured first-week experience that reduces ramp time, answers key operational questions, and establishes clear expectations from day one.",
-    scope:{included:["Days 1–5 onboarding activities","System access setup","Team introductions and culture orientation"],excluded:["Role-specific technical training","Performance review processes","Probation period management"]},
-    roles:[{role:"HR Manager",person_or_team:"People & Culture",responsibility:"Coordinate onboarding schedule and documentation"},{role:"IT Admin",person_or_team:"IT",responsibility:"Provision system access and hardware"},{role:"Hiring Manager",person_or_team:"Department Head",responsibility:"Run role-specific orientation and set 30-60-90 goals"},{role:"Buddy",person_or_team:"Team Member (assigned)",responsibility:"Social integration and informal Q&A support"}],
-    prerequisites:["Signed offer letter on file","Background check completed","Hardware ordered (T-2 weeks)","Accounts pre-provisioned in IT system"],
-    steps:[
-      {step_number:1,title:"Day 1: Welcome and documentation",description:"HR Manager greets new hire at 9 AM. Complete I-9 and tax forms. Issue company ID and access card. Provide employee handbook and sign acknowledgment.",responsible_role:"HR Manager",tools_used:["BambooHR","DocuSign"],is_decision_point:false,decision_options:null,flags:[]},
-      {step_number:2,title:"Day 1: IT setup and system access",description:"IT Admin walks new hire through laptop setup. Provision email, Slack, Notion, and role-specific tools. Test all access before end of Day 1.",responsible_role:"IT Admin",tools_used:["Okta","Jamf","Slack","Notion"],is_decision_point:false,decision_options:null,flags:[]},
-      {step_number:3,title:"Day 2: Team meet-and-greet",description:"Buddy leads 30-min meet-the-team coffee chat (virtual or in-person). Hiring Manager runs 1-hour department overview and role context session.",responsible_role:"Buddy",tools_used:["Zoom","Google Calendar"],is_decision_point:false,decision_options:null,flags:[]},
-      {step_number:4,title:"Day 3-4: Role deep-dive and shadowing",description:"New hire shadows 3 team members across different functions. Attends 2 live team meetings as observer. Reviews 5 key SOPs relevant to their role.",responsible_role:"Hiring Manager",tools_used:["Notion","Loom"],is_decision_point:false,decision_options:null,flags:[]},
-      {step_number:5,title:"Day 5: 30-60-90 goal setting",description:"Hiring Manager presents 30-60-90 day framework. New hire drafts initial goals. Both parties align and confirm in BambooHR by 5 PM Friday.",responsible_role:"Hiring Manager",tools_used:["BambooHR"],is_decision_point:false,decision_options:null,flags:[]}
-    ],
-    decision_points:[{condition:"New hire is remote vs in-office",if_true:"All Day 1 activities conducted via Zoom; hardware shipped in advance",if_false:"Standard in-office onboarding as described"}],
-    exceptions:[{scenario:"IT access not ready on Day 1",handling:"Provide temporary access credentials. IT escalates to sysadmin. Must be resolved before EOD Day 1 or Hiring Manager notified."},{scenario:"Hiring Manager unavailable Week 1",handling:"Assign a senior team member as temporary onboarding lead. Hiring Manager schedules catch-up call in Week 2."}],
-    expected_output:"New hire has full system access, has met all key team members, understands their role context, and has documented 30-60-90 goals by end of Week 1.",
-    review_notes:{review_frequency:"Semi-annually",next_review_date:"2025-12-01",update_triggers:["New tools added to company stack","HR policy changes","Post-onboarding survey feedback"]},
-    completeness_flags:[{severity:"low",type:"gap",step_reference:null,description:"No formal feedback collection mechanism for new hire's Week 1 experience",suggestion:"Add a brief 5-question survey on Day 5 to capture early impressions"}],
-    metadata:{category:"HR",department:"People & Culture",owner:"Sarah Chen",frequency:"event-driven",version:"1.4",status:"live",priority:"high",created_at:"2024-11-01T10:00:00Z",updated_at:"2025-04-12T09:00:00Z",completeness_score:82}
-  },
-  {
-    id:"sop_sample_003",title:"Customer Escalation Handling",
-    purpose:"Ensure all Tier 2 and Tier 3 customer escalations are handled with consistent urgency, clear ownership, and documented resolution — protecting customer satisfaction and team sanity.",
-    scope:{included:["Tier 2 and Tier 3 escalations","Internal escalation routing","Customer communication during escalation"],excluded:["Tier 1 basic support tickets","Billing disputes (handled by Finance)","Legal complaints"]},
-    roles:[{role:"Support Agent",person_or_team:"Customer Support",responsibility:"Identify escalation trigger and initiate process"},{role:"Support Lead",person_or_team:"Customer Support",responsibility:"Own escalation resolution and customer communication"},{role:"Product Manager",person_or_team:"Product",responsibility:"Provide technical context and workaround if needed"}],
-    prerequisites:["Zendesk access at Tier 2 permissions or above","Escalation matrix document (linked in Notion)","Slack #escalations channel membership"],
-    steps:[
-      {step_number:1,title:"Identify escalation trigger",description:"Review ticket for escalation criteria: customer ARR >$10K, SLA breach >4 hours, data integrity issue, or executive contact. If any trigger met, proceed.",responsible_role:"Support Agent",tools_used:["Zendesk"],is_decision_point:true,decision_options:{if_true:"Escalation criteria met → proceed",if_false:"Not an escalation → resolve via Tier 1 process"},flags:[]},
-      {step_number:2,title:"Tag and route in Zendesk",description:"Apply 'Escalation-T2' or 'Escalation-T3' tag. Assign to Support Lead queue. Add internal note: trigger reason, customer ARR tier, time-to-SLA.",responsible_role:"Support Agent",tools_used:["Zendesk"],is_decision_point:false,decision_options:null,flags:[]},
-      {step_number:3,title:"Post to #escalations Slack",description:"Within 10 minutes of tagging, post to #escalations: ticket ID, customer name, issue summary, severity, and @mention Support Lead.",responsible_role:"Support Agent",tools_used:["Slack"],is_decision_point:false,decision_options:null,flags:[]},
-      {step_number:4,title:"Support Lead: own and acknowledge",description:"Support Lead acknowledges within 30 minutes. Posts initial response to customer: 'I'm personally overseeing your case. Target resolution: [time].' Updates Zendesk status to 'Escalated-Active'.",responsible_role:"Support Lead",tools_used:["Zendesk","Slack"],is_decision_point:false,decision_options:null,flags:[]},
-      {step_number:5,title:"Resolve and document",description:"Resolve issue or provide interim workaround. Document root cause, resolution steps, and any product feedback in Zendesk and Notion escalations log. Send resolution summary to customer.",responsible_role:"Support Lead",tools_used:["Zendesk","Notion"],is_decision_point:false,decision_options:null,flags:[]}
-    ],
-    decision_points:[{condition:"Issue is a product bug vs configuration error",if_true:"Loop in Product Manager and create Jira bug ticket",if_false:"Support Lead resolves with existing documentation"}],
-    exceptions:[{scenario:"Support Lead is unavailable",handling:"Route to any available Tier 2 agent flagged as escalation-capable in the on-call rotation."},{scenario:"Customer requests executive contact",handling:"Notify VP of Customer Success immediately via Slack DM. Do not commit to executive contact without VP approval."}],
-    expected_output:"Escalation resolved or interim workaround provided within SLA. Customer received direct communication from Support Lead. Full incident documented in escalations log.",
-    review_notes:{review_frequency:"Monthly",next_review_date:"2025-06-30",update_triggers:["Change in SLA terms","New customer tier structure","Major product incident"]},
-    completeness_flags:[{severity:"medium",type:"missing_role",step_reference:4,description:"No defined backup escalation owner when Support Lead is OOO",suggestion:"Add a secondary escalation owner role and update the on-call rotation matrix"}],
-    metadata:{category:"Support",department:"Customer Success",owner:"Priya Nair",frequency:"ad-hoc",version:"3.0",status:"live",priority:"critical",created_at:"2024-08-20T10:00:00Z",updated_at:"2025-05-01T11:00:00Z",completeness_score:78}
-  }
-];
-
 // ── STATE MANAGEMENT ──────────────────────────────────────────────────────────
 const initState = {
-  sops: SAMPLE_SOPS,
+  sops: [],
   route: { page: "landing", params: {} },
   currentSOPId: null,
   isGenerating: false, genStep: 0,
@@ -897,7 +833,7 @@ function DashboardPage({ sops, dispatch }) {
   const stats = [
     { label:"Total SOPs", value:sops.length, icon:FileText, trend:"+2 this month" },
     { label:"Live SOPs", value:sops.filter(s=>s.metadata.status==="live").length, icon:CheckCircle2, trend:"Active" },
-    { label:"Avg. Completeness", value:Math.round(sops.reduce((s,x)=>s+x.metadata.completeness_score,0)/sops.length)+"%", icon:Activity, trend:"Good health" },
+    { label:"Avg. Completeness", value:(sops.length ? Math.round(sops.reduce((s,x)=>s+x.metadata.completeness_score,0)/sops.length) : 0)+"%", icon:Activity, trend:"Good health" },
     { label:"Open Flags", value:sops.reduce((s,x)=>s+x.completeness_flags.length,0), icon:AlertTriangle, trend:"Needs attention", warn:true }
   ];
   const quickCreate = [
@@ -961,29 +897,38 @@ function DashboardPage({ sops, dispatch }) {
       <div style={{ marginBottom:"32px" }}>
         <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"16px" }}>
           <SectionDivider label="RECENT SOPs" />
-          <Btn variant="ghost" size="sm" onClick={() => dispatch({ type:"NAVIGATE", page:"library" })} iconRight={ArrowRight}>View All</Btn>
+          {sops.length > 0 && <Btn variant="ghost" size="sm" onClick={() => dispatch({ type:"NAVIGATE", page:"library" })} iconRight={ArrowRight}>View All</Btn>}
         </div>
         <div style={{ background:"var(--bg-card)", border:"1px solid var(--border-default)", borderRadius:"var(--r-lg)", overflow:"hidden" }}>
-          <table>
-            <thead><tr>
-              <th>Title</th><th>Category</th><th>Owner</th><th>Updated</th><th>Completeness</th><th>Status</th>
-            </tr></thead>
-            <tbody>
-              {sops.map(sop => (
-                <tr key={sop.id} style={{ cursor:"pointer" }} onClick={() => dispatch({ type:"NAVIGATE", page:"view", sopId:sop.id })}>
-                  <td><span style={{ fontWeight:600, color:"var(--text-primary)" }}>{sop.title}</span></td>
-                  <td><CategoryBadge category={sop.metadata.category}/></td>
-                  <td>{sop.metadata.owner}</td>
-                  <td><Mono>{fmtRelative(sop.metadata.updated_at)}</Mono></td>
-                  <td><div style={{ display:"flex", alignItems:"center", gap:"8px" }}>
-                    <CompletionBar score={sop.metadata.completeness_score} width="80px" />
-                    <Mono>{sop.metadata.completeness_score}%</Mono>
-                  </div></td>
-                  <td><StatusBadge status={sop.metadata.status}/></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          {sops.length === 0 ? (
+            <div style={{ padding: "40px", textAlign: "center", color: "var(--text-tertiary)" }}>
+              <FileText size={32} style={{ color: "var(--accent-primary)", opacity: 0.5, marginBottom: "12px" }} />
+              <div style={{ fontWeight: 600, color: "var(--text-primary)", marginBottom: "6px" }}>No SOPs created yet</div>
+              <div style={{ fontSize: "12px", marginBottom: "20px" }}>Generate your first SOP to populate the dashboard.</div>
+              <Btn size="sm" icon={Plus} onClick={() => dispatch({ type: "NAVIGATE", page: "create" })}>Create SOP</Btn>
+            </div>
+          ) : (
+            <table>
+              <thead><tr>
+                <th>Title</th><th>Category</th><th>Owner</th><th>Updated</th><th>Completeness</th><th>Status</th>
+              </tr></thead>
+              <tbody>
+                {sops.map(sop => (
+                  <tr key={sop.id} style={{ cursor:"pointer" }} onClick={() => dispatch({ type:"NAVIGATE", page:"view", sopId:sop.id })}>
+                    <td><span style={{ fontWeight:600, color:"var(--text-primary)" }}>{sop.title}</span></td>
+                    <td><CategoryBadge category={sop.metadata.category}/></td>
+                    <td>{sop.metadata.owner}</td>
+                    <td><Mono>{fmtRelative(sop.metadata.updated_at)}</Mono></td>
+                    <td><div style={{ display:"flex", alignItems:"center", gap:"8px" }}>
+                      <CompletionBar score={sop.metadata.completeness_score} width="80px" />
+                      <Mono>{sop.metadata.completeness_score}%</Mono>
+                    </div></td>
+                    <td><StatusBadge status={sop.metadata.status}/></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
       </div>
 
@@ -2011,7 +1956,7 @@ function SettingsPage({ settings, dispatch, sopsCount }) {
 
   const handleClearSession = () => {
     sessionStorage.clear();
-    dispatch({ type: "SET_SOPS", sops: SAMPLE_SOPS });
+    dispatch({ type: "SET_SOPS", sops: [] });
     dispatch({
       type: "SET_SETTINGS",
       settings: {
