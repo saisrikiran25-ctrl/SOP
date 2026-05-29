@@ -782,6 +782,10 @@ function Sidebar({ route, dispatch, sops, settings }) {
           </button>
         ))}
       </nav>
+      <div style={{ padding:"16px", borderTop:"1px solid var(--border-subtle)" }}>
+        <div style={{ fontSize:"13px", fontWeight:600, color:"var(--text-primary)", marginBottom:"4px" }}>Built by Sai Kiran</div>
+        <div style={{ fontSize:"11px", color:"var(--text-tertiary)", lineHeight:1.4 }}>Data cleared after session expires.</div>
+      </div>
     </div>
   );
 }
